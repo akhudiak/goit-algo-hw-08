@@ -1,4 +1,5 @@
 from functools import wraps
+import pickle
 from data_structure import AddressBook, Record
 from errors import PhoneFormatError, BirthdayFormatError, InputFormatError, NameError, PhoneError
 
@@ -110,8 +111,22 @@ def birthdays(args, book: AddressBook):
     return "\n".join(f'{u_b["name"]}: {u_b["birthday"]}' for u_b in book.get_upcoming_birthdays(days=7))
 
 
+def save_data(book, filename):
+    with open(filename, "wb") as f:
+        pickle.dump(book, f)
+
+
+def load_data(filename):
+    try:
+        with open(filename, "rb") as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        return AddressBook()
+
+
 def main():
-    book = AddressBook()
+    filename = "addressbook.pkl"
+    book = load_data(filename)
     print("Welcome to the assistant bot!")
     while True:
         user_input = input(">>> ")
@@ -119,6 +134,7 @@ def main():
 
         if command in ["close", "exit"]:
             print("Good bye!")
+            save_data(book, filename)
             break
         elif command == "hello":
             print("How can I help you?")
